@@ -91,7 +91,10 @@ predictions=clf2.predict(X_test)
 print(metrics.r2_score(predictions, y_test))
 print(np.sort(list(zip(data2.columns.values, clf2.feature_importances_)))[::-1])
 
+print('it works ')
 
 
 
 # keep working on this!
+
+# got git working
