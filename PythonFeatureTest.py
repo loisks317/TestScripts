@@ -2,6 +2,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import os
 
 # read in data
 df=pd.read_csv('State_of_New_York_Mortgage_Agency.csv')
@@ -90,10 +91,6 @@ clf2.fit(X_train, y_train)
 predictions=clf2.predict(X_test)
 print(metrics.r2_score(predictions, y_test))
 print(np.sort(list(zip(data2.columns.values, clf2.feature_importances_)))[::-1])
-
-print('it works ')
-print('still works')
-print('not sure?')
 
 # keep working on this!
 # changes 
