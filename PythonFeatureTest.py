@@ -82,7 +82,7 @@ X_train, X_test, y_train, y_test = train_test_split(
     data2 , result , test_size=0.25, random_state=1)
 
 # setup the model
-from sklearn.ensemble import RandomForestRegressor
+workingfrom sklearn.ensemble import RandomForestRegressor
 from sklearn import metrics
 
 clf2 = RandomForestRegressor()
@@ -96,5 +96,5 @@ print('still works')
 
 
 # keep working on this!
-
-# got git working
+# changes 
+# got git 
