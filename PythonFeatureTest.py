@@ -92,6 +92,69 @@ predictions=clf2.predict(X_test)
 print(metrics.r2_score(predictions, y_test))
 print(np.sort(list(zip(data2.columns.values, clf2.feature_importances_)))[::-1])
 
-# keep working on this!
-# changes 
-# got git 
+#
+# Interesting, right? the r^2 of the made up data model was better than the model 
+# without made up data. Uh oh! 
+# Why did this happen? Well, let's try to see if we can engineer a few more features
+# to develop a better model
+#
+# let's add some financial data
+# our purchase years range from 2004 to 2016. Let's get the average mortage rate in those years
+# googled and found at : http://www.freddiemac.com/pmms/pmms30.html
+years=np.linspace(2004., 2016., 13)
+mort30=np.array([5.84, 5.87, 6.41, 6.34, 6.03, 5.04, 4.69, 4.45, 3.66, 3.98, 4.17, 3.85, 3.65])
+data['mort']=[mort30[years==data['Purchase Year'].iloc[item]][0] for item in range(len(data['Purchase Year']))]
+data2['mort']=[mort30[years==data2['Purchase Year'].iloc[item]][0] for item in range(len(data2['Purchase Year']))]
+
+#
+# what else can we add? Maybe how many houses were purchased in that year 
+# from https://www.statista.com/statistics/219963/number-of-us-house-sales/
+housesBought=np.array([1203, 1283, 1051, 776, 485, 375, 323, 306, 368, 429, 437, 501, 560])*1000.
+data['housesBought']=[housesBought[years==data['Purchase Year'].iloc[item]][0] for item in range(len(data['Purchase Year']))]
+data2['housesBought']=[housesBought[years==data2['Purchase Year'].iloc[item]][0] for item in range(len(data2['Purchase Year']))]
+
+#
+#  and just because we don't want all our new data depending on year, let's do one about
+#  expected wealth by family size in NY
+#  source: https://www.justice.gov/ust/eo/bapcpa/20130501/bci_data/median_income_table.htm
+#  assume > 4 is = 4
+familySize=np.sort(data['Household Size '].unique())
+income=[47790, 59308,69052, 83209]
+for i in range(len(income),len(familySize)):
+    income.append(83209)
+income=np.array(income)
+data['income']=[income[familySize==data['Household Size '].iloc[item]][0] for item in range(len(data['Household Size ']))]
+data2['income']=[income[familySize==data2['Household Size '].iloc[item]][0] for item in range(len(data2['Household Size ']))]
+
+stop
+
+# now go back to model !
+
+X_train, X_test, y_train, y_test = train_test_split(
+    data , result , test_size=0.25, random_state=1)
+
+# setup the model
+
+clf3 = RandomForestRegressor()
+clf3.fit(X_train, y_train)
+predictions=clf3.predict(X_test)
+print('WITH MADE UP DATA')
+print(metrics.r2_score(predictions, y_test))
+print(np.sort(list(zip(data.columns.values, clf3.feature_importances_)))[::-1])
+
+#
+# repeat without the made up column
+print('WITHOUT MADE UP DATA')
+data2=dfmod.drop(['Original Loan Amount', 'Loan Year'], axis=1)
+
+X_train, X_test, y_train, y_test = train_test_split(
+    data2 , result , test_size=0.25, random_state=1)
+
+# setup the model
+clf4 = RandomForestRegressor()
+clf4.fit(X_train, y_train)
+predictions=clf4.predict(X_test)
+
+
+print(metrics.r2_score(predictions, y_test))
+print(np.sort(list(zip(data2.columns.values, clf4.feature_importances_)))[::-1])
