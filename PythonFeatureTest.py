@@ -9,10 +9,16 @@ df=pd.read_csv('State_of_New_York_Mortgage_Agency.csv')
 
 # for the sake of this script, make it just columns that could
 # be regressed on
-dfmod=df[['Original Loan Amount', 'Purchase Year', 'Original Loan To Value', 'SONYMA DPAL/CCAL Amount', 'Number of Units', 'Household Size ']]
+dfmod=df[['Original Loan Amount', 'Purchase Year', 'Original Loan To Value', 'SONYMA DPAL/CCAL Amount', 'Number of Units', \
+'Household Size ', 'Property Type', 'County', 'Housing Type', 'Bond Series', 'Original Term']]
+dfmod['Property Type']=pd.factorize(dfmod['Property Type'])[0]
+dfmod['County']=pd.factorize(dfmod['County'])[0]
+dfmod['Housing Type']=pd.factorize(dfmod['Housing Type'])[0]
+dfmod['Bond Series']=pd.factorize(dfmod['Bond Series'])[0]
 dfmod=dfmod.replace('[\$,]', '', regex=True)
 dfmod=dfmod.replace('[\%,]', '', regex=True)
 dfmod=dfmod.replace('Family', '', regex=True)
+
 dfmod=dfmod.astype(float)
 
 # test for correlations 
@@ -48,7 +54,7 @@ for ii in dfnorm.columns.values:
 # We will call it loan year... when you first requested the loan? 
 #
 randoms = np.linspace(0.9, 1.1, len(dfmod))
-dfmod['Loan Year']=dfmod['Purchase Year']*randoms
+dfmod['Grandmas Loan Agency']=dfmod['SONYMA DPAL/CCAL Amount']*randoms
 corrDF=dfmod.corr(); print(corrDF)
 
 #
@@ -76,7 +82,7 @@ print(np.sort(list(zip(data.columns.values, clf.feature_importances_)))[::-1])
 #
 # repeat without the made up column
 print('WITHOUT MADE UP DATA')
-data2=dfmod.drop(['Original Loan Amount', 'Loan Year'], axis=1)
+data2=dfmod.drop(['Original Loan Amount', 'Grandmas Loan Agency'], axis=1)
 
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(
@@ -92,13 +98,13 @@ predictions=clf2.predict(X_test)
 print(metrics.r2_score(predictions, y_test))
 print(np.sort(list(zip(data2.columns.values, clf2.feature_importances_)))[::-1])
 
+stop
 #
 # Interesting, right? the r^2 of the made up data model was better than the model 
 # without made up data. Uh oh! 
 # Why did this happen? Well, let's try to see if we can engineer a few more features
 # to develop a better model
-#
-# let's add some financial data
+''' # let's add some financial data
 # our purchase years range from 2004 to 2016. Let's get the average mortage rate in those years
 # googled and found at : http://www.freddiemac.com/pmms/pmms30.html
 years=np.linspace(2004., 2016., 13)
@@ -125,6 +131,15 @@ for i in range(len(income),len(familySize)):
 income=np.array(income)
 data['income']=[income[familySize==data['Household Size '].iloc[item]][0] for item in range(len(data['Household Size ']))]
 data2['income']=[income[familySize==data2['Household Size '].iloc[item]][0] for item in range(len(data2['Household Size ']))]
+ '''
+# above are highly correlated variables, lol 
+
+# let's make a "wealthy vs Poor" category
+data['income']=[0 if data['Household Size '].iloc[x] < 3 or data['Household Size '].iloc[x]\
+    > 4 else 1 for x in range(len(data['Household Size '])) ]
+data2['income']=[0 if data2['Household Size '].iloc[x] < 3 or data2['Household Size '].iloc[x]\
+    > 4 else 1 for x in range(len(data2['Household Size '])) ]
+
 
 # now go back to model !
 
