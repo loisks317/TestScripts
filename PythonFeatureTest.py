@@ -126,9 +126,9 @@ income=np.array(income)
 data['income']=[income[familySize==data['Household Size '].iloc[item]][0] for item in range(len(data['Household Size ']))]
 data2['income']=[income[familySize==data2['Household Size '].iloc[item]][0] for item in range(len(data2['Household Size ']))]
 
-stop
-
 # now go back to model !
+
+
 
 X_train, X_test, y_train, y_test = train_test_split(
     data , result , test_size=0.25, random_state=1)
@@ -145,7 +145,6 @@ print(np.sort(list(zip(data.columns.values, clf3.feature_importances_)))[::-1])
 #
 # repeat without the made up column
 print('WITHOUT MADE UP DATA')
-data2=dfmod.drop(['Original Loan Amount', 'Loan Year'], axis=1)
 
 X_train, X_test, y_train, y_test = train_test_split(
     data2 , result , test_size=0.25, random_state=1)
